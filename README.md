@@ -1,6 +1,6 @@
 # AS3-Toolkit
 
-## A collection of goodies for building ActionScript 3 apps. 
+### A collection of goodies for building ActionScript 3 apps. 
 
 It contains a wide array of utilities and abstracted UI classes that can increase your producitivty.
 
