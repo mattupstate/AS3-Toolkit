@@ -1,8 +1,8 @@
 .DS_Store
-**/.classpath
-**/.project
-**/.settings
-**/bin
-**/report
+.classpath
+.project
+.settings
+bin
+report
 user.properties
 
