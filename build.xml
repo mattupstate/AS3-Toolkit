@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<project name="rokkan-toolkit-actionscript3" default="usage" basedir=".">
+
+    <description>Rokkan ActionScript 3 Toolkit</description>
+    
+    <property file="user.properties" />
+	<property file="build.properties" />
+	
+	<!-- Add the ant-contrib tasks -->
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="${resources.dir}/ant/ant-contrib.jar" />
+    
+    <!-- Set up FlexUnit Ant tasks -->
+    <taskdef resource="flexUnitTasks.tasks" classpath="${resources.dir}/ant/flexUnitTasks.jar" />
+	
+    <target name="usage">
+        <echo message=""/>
+        <echo message="${project.name.full}"/>
+        <echo message="-----------------------------------"/>
+        <echo message=""/>
+        <echo message="Available targets:"/>
+        <echo message=""/>
+        <echo message="run-tests         --&gt; Build Rokkan ActionScript 3 Toolkit SWC and run unit tests"/>
+        <echo message="compile-swc       --&gt; Build Rokkan ActionScript 3 Toolkit  SWC"/>
+        <echo message="clean             --&gt; Remove all folders created by build script"/>
+        <echo message="init              --&gt; Create build folders"/>
+        <echo message=""/>
+    </target>
+    
+    <target name="init" depends="clean">
+        <echo>[init] Creating directories: bin, report</echo>
+            <mkdir dir="${bin.dir}"/>
+            <mkdir dir="${report.dir}"/>
+        <echo>[init] Directories created: bin, report</echo>
+    </target>
+    
+    <target name="clean">
+        <echo>[clean] Removing directories: bin, report, dist</echo>
+        <delete includeemptydirs="true" failonerror="false">
+            <fileset dir="${docs.dir}" defaultexcludes="false">
+                <include name="**/*"/>
+            </fileset>
+            <fileset dir="${report.dir}" defaultexcludes="false">
+                <include name="**/*"/>
+            </fileset>
+            <fileset dir="${dist.dir}" defaultexcludes="false">
+                <include name="**/*"/>
+            </fileset>
+            <fileset dir="${bin.dir}" defaultexcludes="false">
+                <include name="**/*"/>
+            </fileset>
+        </delete>
+        <echo>[clean] Directories removed: bin, report, dist</echo>
+    </target>
+
+    <target name="compile-swc" depends="run-tests">
+        <echo>[compile-swc] Compiling SWC</echo>
+        <echo>[compile-swc] Using Flex SDK at: ${FLEX_HOME}</echo>
+        <java jar="${FLEX_HOME}/lib/compc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
+            <arg value="-output=${bin.dir}/${project.name.versioned}.swc"/>
+            <arg value="-include-sources=${src.dir}" />
+            <arg value="-incremental=true"/>
+            <arg value="-static-link-runtime-shared-libraries=true"/>
+            <arg value="-verbose-stacktraces=true"/>
+            <arg value="-headless-server=true"/>
+        </java>
+        <echo>[compile-swc] Release SWC ${project.name.versioned}.swc created successfully</echo>
+    </target>
+
+    <target name="compile-tests" depends="init">
+        <echo>[compile-tests] Compiling unit tests</echo>
+        <java jar="${FLEX_HOME}/lib/mxmlc.jar" dir="${FLEX_HOME}/frameworks" maxmemory="512m" fork="true" failonerror="true">
+            <arg value="${test.target}"/>
+            <arg value="-output=${report.dir}/flash/${test.output}.swf"/>
+            <arg value="-source-path=${test.dir}"/>
+            <arg value="-source-path=${src.dir}"/>
+            <arg value="-library-path+=${resources.dir}/lib"/>
+            <arg value="-default-size=1024,768"/>
+            <arg value="-default-background-color=0xFFFFFF"/>
+            <arg value="-incremental=true"/>
+            <arg value="-verbose-stacktraces=true"/>
+            <arg value="-headless-server=true"/>
+        </java>
+        <echo>[compile-tests] Unit tests compiled successfully</echo>
+    </target>
+
+    <target name="create-docs" depends="run-tests">
+        <echo>[create-docs] Generating ASDoc documentation </echo>
+        <tstamp><format property="year" pattern="yyyy" /></tstamp>
+        <tstamp>
+            <format property="docgen.time" pattern="MM/dd/yyyy hh:mm aa" unit="hour"/>
+        </tstamp>
+        <java jar="${FLEX_HOME}/lib/asdoc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
+            <arg value="-output=${docs.dir}" />
+            <arg value="-doc-sources=${src.dir}" />
+            <arg value="-source-path=${src.dir}" />
+            <arg value="-main-title=${project.name.full} ${project.version}" />
+            <arg value="-window-title=${project.name.full} ${project.version}" />
+            <arg value="-footer=Copyright © ${year} Rokkan" />
+        </java>
+        <echo>[create-docs] ASDoc documentation generated successfully.</echo>
+    </target>
+    
+    <target name="run-tests" depends="compile-tests">
+        <echo>[run-tests] Running FlexUnit Ant task on ${report.dir}/flash/${test.output}.swf</echo>
+        <flexunit swf="${report.dir}/flash/${test.output}.swf" 
+                  toDir="${report.dir}/xml" 
+                  haltonfailure="false" 
+                  verbose="true" 
+                  localTrusted="false" 
+                  failureproperty="flexunit.failed"
+                  timeout="5000" />
+        
+        <!-- Copy HTML container for FlexUnit UI -->
+        <echo>[run-tests] Generating Flash report container</echo>
+        <copy file="${resources.dir}/html/test-runner.html" tofile="${report.dir}/flash/index.html"/>
+        <copy file="${resources.dir}/js/swfobject.js" tofile="${report.dir}/flash/swfobject.js"/>
+        
+        <replace file="${report.dir}/flash/index.html">
+            <replacefilter token="@SWF@" value="${test.output}.swf"/>
+        </replace>
+        
+        <!-- Generate readable JUnit-style reports -->
+        <echo>[run-tests] Generating JUnit (HTML) report </echo>
+        <junitreport todir="${report.dir}/xml">
+            <fileset dir="${report.dir}/xml">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${report.dir}/html"/>
+        </junitreport>
+        
+        <if>
+            <isset property="flexunit.failed"/>
+            <then>
+                <fail message="Failures exist in unit tests." />
+            </then>
+            <else>
+                <echo>[run-tests] Tests completed with 0 failures or errors</echo>
+            </else>
+        </if>
+    </target>
+    
+</project>
