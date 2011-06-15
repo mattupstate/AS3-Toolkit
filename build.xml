@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<project name="rokkan-toolkit-actionscript3" default="usage" basedir=".">
+<project name="nobien-toolkit-actionscript3" default="usage" basedir=".">
 
-    <description>Rokkan ActionScript 3 Toolkit</description>
+    <description>Nobien ActionScript 3 Toolkit</description>
     
     <property file="user.properties" />
 	<property file="build.properties" />
@@ -19,8 +19,8 @@
         <echo message=""/>
         <echo message="Available targets:"/>
         <echo message=""/>
-        <echo message="run-tests         --&gt; Build Rokkan ActionScript 3 Toolkit SWC and run unit tests"/>
-        <echo message="compile-swc       --&gt; Build Rokkan ActionScript 3 Toolkit  SWC"/>
+        <echo message="run-tests         --&gt; Build Nobien ActionScript 3 Toolkit SWC and run unit tests"/>
+        <echo message="compile-swc       --&gt; Build Nobien ActionScript 3 Toolkit  SWC"/>
         <echo message="clean             --&gt; Remove all folders created by build script"/>
         <echo message="init              --&gt; Create build folders"/>
         <echo message=""/>
@@ -95,7 +95,7 @@
             <arg value="-source-path=${src.dir}" />
             <arg value="-main-title=${project.name.full} ${project.version}" />
             <arg value="-window-title=${project.name.full} ${project.version}" />
-            <arg value="-footer=Copyright © ${year} Rokkan" />
+            <arg value="-footer=Copyright © ${year} Nobien" />
         </java>
         <echo>[create-docs] ASDoc documentation generated successfully.</echo>
     </target>
