@@ -1,6 +1,5 @@
 package net.nobien.net 
 {
-	import net.nobien.events.LoadEvent;
 	import flash.display.Bitmap;
 	import flash.display.Sprite;
 	import flash.events.ErrorEvent;
@@ -10,6 +9,7 @@ package net.nobien.net
 	import flash.media.Sound;
 	import flash.net.URLRequest;
 	import flash.utils.getTimer;
+	import net.nobien.events.LoadEvent;
     
     /**
      * Dispatched when the queue has completely loaded.
@@ -62,7 +62,7 @@ package net.nobien.net
 		private var _numConnections:int;
 		private var _connectionCount:int = 0;
         private var _items:Vector.<LoadItem>;
-        private var _factory:LoadItemFactory;
+        private var _factory:ILoadItemFactory;
         private var _isLoading:Boolean = false;
         private var _isComplete:Boolean = false;
         private var _progress:Number = 0;
@@ -72,9 +72,9 @@ package net.nobien.net
          * Creates a new LoadItemQueue object.
          * @param   continueOnError Flag to denote if the queue should continue if encountering an error.
          */
-        public function LoadItemQueue() 
+        public function LoadItemQueue(factory:ILoadItemFactory = null) 
         {
-            _factory = new LoadItemFactory();
+            _factory = (factory == null) ? new LoadItemFactory() : factory;
             _items = new Vector.<LoadItem>();
         }
         
@@ -402,6 +402,17 @@ package net.nobien.net
         public function getXML( id:String, clearMemory:Boolean = false ):XML
         {
             return XML( getContent( id, clearMemory ) );
+        }
+        
+        /**
+         * Retrieves an instance of a loaded text file/document.
+         * @param	id          The LoadItem ID name.
+         * @param	clearMemory Flag to denote if the content should be cleared from the queue after retrieval.
+         * @return  The loaded content as a String instance.
+         */
+        public function getText( id:String, clearMemory:Boolean = false ):String
+        {
+            return String( getContent( id, clearMemory ) );
         }
         
         /**

@@ -7,12 +7,13 @@ package net.nobien.net
     /**
      * The LoadItemFactory class facilities the creation of LoadItem objects based on the item's URL.
      */
-    public class LoadItemFactory
+    public class LoadItemFactory implements ILoadItemFactory
     {
         public static var IMAGE_EXTENSIONS:Array = ["jpg", "jpeg", "gif", "png"];
         public static var XML_EXTENSIONS:Array = ["xml"];
         public static var SWF_EXTENSIONS:Array = ["swf"];
         public static var SOUND_EXTENSIONS:Array = ["mp3", "f4a", "f4b"];
+        public static var TEXT_EXTENSIONS:Array = ["txt", "text", "json"];
         
         /**
          * Creates a new LoadItemFactory object.
@@ -54,6 +55,9 @@ package net.nobien.net
                 
             if ( SOUND_EXTENSIONS.indexOf( extension ) > -1 )
                 item = new SoundLoadItem( id, request, weight, context as SoundLoaderContext );
+            
+            if ( TEXT_EXTENSIONS.indexOf( extension ) > -1 )
+                item = new TextLoadItem( id, request, weight );
             
             return item;
         }
